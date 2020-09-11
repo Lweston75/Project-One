@@ -14,7 +14,7 @@ from pprint import pprint
 movie_csv = "ESP-Movie.csv"
 main_df = pd.read_csv(movie_csv, encoding = "ISO-8859-1")
 main_df.drop(['Created','Modified','Position','Description','Title Type'],axis=1, inplace = True)
-main_df.head()
+
 
 #%%
 
@@ -28,18 +28,56 @@ pprint(data['Ratings'][1]['Value'])
 main_df['Box_Office']=''
 main_df['Rotten_Tomatoes_Rating']=''
 main_df['Metacritic_Rating']=''
-small_df=main_df.head()
-for index, row in small_df.iterrows():
+main_df=main_df.head()
+for index, row in main_df.iterrows():
     ID = row['Const']
     call = f"http://www.omdbapi.com/?i={ID}&apikey={OMDBkey}"
     data = req.get(call).json()
-    small_df.at[index,'Box_Office'] = data['BoxOffice']
+    main_df.loc[index,'Box_Office'] = data['BoxOffice']
     if len(data['Ratings'])>0:
         for i in data['Ratings']:
             if i['Source'] == 'Rotten Tomatoes':
-                small_df.at[index,'Rotten_Tomatoes_Rating'] = i['Value']
+                main_df.loc[index,'Rotten_Tomatoes_Rating'] = i['Value']
             if i['Source'] == 'Metacritic':
-                small_df.at[index,'Metacritic_Rating'] = i['Value']
+                main_df.loc[index,'Metacritic_Rating'] = i['Value']
+#%%
+def dollarCleaner(x):
+    x = x.split('$')
+    x = x[-1]
+    x = x.replace(',','')
+    try:
+        x = int(x)
+    except:
+        x = np.NaN
+    return x
+def lessRottenTomato(x):
+    x = x.split('%')
+    x = x[0]
+    try:
+        x = int(x)
+    except:
+        x = np.NaN
+    return x
+def megacritic(x):
+    x = x.split('/')
+    x = x[0]
+    try:
+        x = int(x)
+    except:
+        x = np.NaN
+    return x
+def monthGetter(x):
+    x = x.split('-')
+    x = x[1]
+    try:
+        x = int(x)
+    except:
+        x = np.NaN
+    return x
 
-small_df
+main_df['Box_Office'] = main_df['Box_Office'].apply(dollarCleaner)
+main_df['Rotten_Tomatoes_Rating'] = main_df['Rotten_Tomatoes_Rating'].apply(lessRottenTomato)
+main_df['Metacritic_Rating'] = main_df['Metacritic_Rating'].apply(megacritic)
+main_df['Month Released'] = main_df['Release Date'].apply(monthGetter)
+main_df
 # %%
