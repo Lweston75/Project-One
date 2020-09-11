@@ -90,8 +90,7 @@ for index, row in main_df.iterrows():
 
 #This cleans up cells tarting with a '$' and handles numbers with commas
 def dollarCleaner(x):
-    x = x.split('$')
-    x = x[-1]
+    x = x.replace('$','')
     x = x.replace(',','')
     try:
         x = int(x)
@@ -102,8 +101,7 @@ def dollarCleaner(x):
 #This one is made for Rotten Tomatoes ratings, but will remove the percent sign from
 #any number
 def lessRottenTomato(x):
-    x = x.split('%')
-    x = x[0]
+    x = x.replace('%','')
     try:
         x = int(x)
     except:
