@@ -37,6 +37,7 @@ main_df['Total_Nominations'] = ''
 main_df['Home_Release']=''
 main_df['Production']=''
 main_df['Country']=''
+main_df['Awards_Blurb']
 
 # vvv Comment out below when the code is all ready to go vvv
 main_df=main_df.head()
@@ -91,6 +92,7 @@ for index, row in main_df.iterrows():
             main_df.loc[index, 'Home_Release'] = data['DVD']
         except:
             main_df.loc[index, 'Home_Release'] = np.NaN
+        main_df.loc[index, 'Awards_Blurb'] = data['Awards']
     except:
         print(f"Unable to get data from the movie {data['Title']}")
     
