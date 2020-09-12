@@ -45,48 +45,54 @@ main_df=main_df.head()
 #This busy monstrosity below is to pull the data we need from OMDB
 #We are very limited as to how many calls we can make in a day so we needed
 #   to get it all in one 'for' block
+count = 0
 for index, row in main_df.iterrows():
-    ID = row['Const']
-    call = f"http://www.omdbapi.com/?i={ID}&apikey={OMDBkey}"
-    data = req.get(call).json()
-    main_df.loc[index,'Box_Office'] = data['BoxOffice']
-    main_df.loc[index, 'Rated'] = data['Rated']
-    main_df.loc[index, 'Production'] = data['Production']
-    main_df.loc[index, 'Country'] = data['Country']
+    count += 1
+    try:
+        print(f"#{count}: Getting data from the movie {data['Title']}")
+        ID = row['Const']
+        call = f"http://www.omdbapi.com/?i={ID}&apikey={OMDBkey}"
+        data = req.get(call).json()
+        main_df.loc[index,'Box_Office'] = data['BoxOffice']
+        main_df.loc[index, 'Rated'] = data['Rated']
+        main_df.loc[index, 'Production'] = data['Production']
+        main_df.loc[index, 'Country'] = data['Country']
 #There are many different formats for the sentence which can extract awards information
 #The following monstrosity of nested Try blocks in an attempt to get what we need anyway.
 #A regex pattern identifier might be a better way but I don't know how to do that yet.
-    awards_sent = data['Awards'].split(' ')
-    try:
-        main_df.loc[index, 'Oscars'] = int(awards_sent[1])
-        main_df.loc[index, 'Total_Awards'] = int(awards_sent[4] + row['Oscars'])
-        main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2])
-    except:
+        awards_sent = data['Awards'].split(' ')
         try:
-            main_df.loc[index, 'Oscars'] = 0
-            main_df.loc[index, 'Total_Awards'] = int(awards_sent[5])
-            main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2] + awards_sent[2])
+            main_df.loc[index, 'Oscars'] = int(awards_sent[1])
+            main_df.loc[index, 'Total_Awards'] = int(awards_sent[4] + row['Oscars'])
+            main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2])
         except:
             try:
                 main_df.loc[index, 'Oscars'] = 0
-                main_df.loc[index, 'Total_Awards'] = int(awards_sent[0])
-                main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2])
+                main_df.loc[index, 'Total_Awards'] = int(awards_sent[5])
+                main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2] + awards_sent[2])
             except:
-                main_df.loc[index, 'Oscars'] = np.NaN
-                main_df.loc[index, 'Total_Awards'] = np.NaN
-                main_df.loc[index, 'Total_Nominations'] = np.NaN
+                try:
+                    main_df.loc[index, 'Oscars'] = 0
+                    main_df.loc[index, 'Total_Awards'] = int(awards_sent[0])
+                    main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2])
+                except:
+                    main_df.loc[index, 'Oscars'] = np.NaN
+                    main_df.loc[index, 'Total_Awards'] = np.NaN
+                    main_df.loc[index, 'Total_Nominations'] = np.NaN
 #Rotten Tomatoes rating information is in a stupid format
 #Here is how we had to pull it out:
-    if len(data['Ratings'])>0:
-        for i in data['Ratings']:
-            if i['Source'] == 'Rotten Tomatoes':
-                main_df.loc[index,'Rotten_Tomatoes_Rating'] = i['Value']
-            if i['Source'] == 'Metacritic':
-                main_df.loc[index,'Metacritic_Rating'] = i['Value']
-    try:
-        main_df.loc[index, 'Home_Release'] = data['DVD']
+        if len(data['Ratings'])>0:
+            for i in data['Ratings']:
+                if i['Source'] == 'Rotten Tomatoes':
+                    main_df.loc[index,'Rotten_Tomatoes_Rating'] = i['Value']
+                if i['Source'] == 'Metacritic':
+                    main_df.loc[index,'Metacritic_Rating'] = i['Value']
+        try:
+            main_df.loc[index, 'Home_Release'] = data['DVD']
+        except:
+            main_df.loc[index, 'Home_Release'] = np.NaN
     except:
-        main_df.loc[index, 'Home_Release'] = np.NaN
+        print(f"Unable to get data from the movie {data['Title']}")
     
 #%%
 #The following functions are to be applied to cells to clean them up
