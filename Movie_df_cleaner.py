@@ -23,7 +23,7 @@ main_df.drop(['Created','Modified','Position','Description','Title Type'],axis=1
 
 #%%
 
-ID = 'tt0480255'
+ID = 'tt0094291'
 call = f"http://www.omdbapi.com/?i={ID}&apikey={key}"
 data = req.get(call).json()
 pprint(data['Country'])
@@ -42,7 +42,7 @@ main_df['Awards_Blurb']=''
 main_df['Languages']=''
 #%%
 # vvv Comment out below when the code is all ready to go vvv
-main_df=main_df.head()
+#main_df=main_df.head()
 # ^^^                                                        ^^^
 
 #This busy monstrosity below is to pull the data we need from OMDB
@@ -153,6 +153,7 @@ main_df['Genres']= main_df['Genres'].apply(genreSplitter)
 main_df['Home_Release']= main_df['Home_Release'].apply(dateFormatter)
 main_df['Languages']= main_df['Languages'].apply(genreSplitter)
 #%%
+main_df = main_df.head(1000)
 main_df.to_csv('movies.csv')
 main_df['Awards_Blurb'].unique()
 
