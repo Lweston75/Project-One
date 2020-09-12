@@ -8,8 +8,10 @@ from config import bigKey
 import requests as req
 import json
 from pprint import pprint
-#key = bigKey
+import time
+key = bigKey
 key = OMDBkey
+print(bigKey)
 #%%
 #Getting the CSV in,  there was a weird encoding error, the ISO-8859 fixes it.
 #We'll see if we can change it so that this step is unnecessary when processing
@@ -21,24 +23,24 @@ main_df.drop(['Created','Modified','Position','Description','Title Type'],axis=1
 
 #%%
 
-ID = 'tt1872181'
+ID = 'tt0480255'
 call = f"http://www.omdbapi.com/?i={ID}&apikey={key}"
 data = req.get(call).json()
-pprint(data)
+pprint(data['Country'])
+
+
 
 #%%
 main_df['Box_Office']=''
 main_df['Rotten_Tomatoes_Rating']=''
 main_df['Metacritic_Rating']=''
 main_df['Rated']= ''
-main_df['Oscars']= ''
-main_df['Total_Awards']= ''
-main_df['Total_Nominations'] = ''
 main_df['Home_Release']=''
 main_df['Production']=''
 main_df['Country']=''
 main_df['Awards_Blurb']=''
 main_df['Languages']=''
+#%%
 # vvv Comment out below when the code is all ready to go vvv
 main_df=main_df.head()
 # ^^^                                                        ^^^
@@ -50,36 +52,14 @@ count = 0
 for index, row in main_df.iterrows():
     count += 1
     try:
-        print(f"#{count}: Getting data from the movie {data['Title']}")
+        print(f"#{count}: Getting data for {row['Title']}")
         ID = row['Const']
-        call = f"http://www.omdbapi.com/?i={ID}&apikey={OMDBkey}"
+        call = f"http://www.omdbapi.com/?i={ID}&apikey={key}"
         data = req.get(call).json()
         main_df.loc[index,'Box_Office'] = data['BoxOffice']
         main_df.loc[index, 'Rated'] = data['Rated']
         main_df.loc[index, 'Production'] = data['Production']
         main_df.loc[index, 'Country'] = data['Country']
-#There are many different formats for the sentence which can extract awards information
-#The following monstrosity of nested Try blocks in an attempt to get what we need anyway.
-#A regex pattern identifier might be a better way but I don't know how to do that yet.
-        awards_sent = data['Awards'].split(' ')
-        try:
-            main_df.loc[index, 'Oscars'] = int(awards_sent[1])
-            main_df.loc[index, 'Total_Awards'] = int(awards_sent[4] + row['Oscars'])
-            main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2])
-        except:
-            try:
-                main_df.loc[index, 'Oscars'] = 0
-                main_df.loc[index, 'Total_Awards'] = int(awards_sent[5])
-                main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2] + awards_sent[2])
-            except:
-                try:
-                    main_df.loc[index, 'Oscars'] = 0
-                    main_df.loc[index, 'Total_Awards'] = int(awards_sent[0])
-                    main_df.loc[index, 'Total_Nominations'] = int(awards_sent[-2])
-                except:
-                    main_df.loc[index, 'Oscars'] = np.NaN
-                    main_df.loc[index, 'Total_Awards'] = np.NaN
-                    main_df.loc[index, 'Total_Nominations'] = np.NaN
 #Rotten Tomatoes rating information is in a stupid format
 #Here is how we had to pull it out:
         if len(data['Ratings'])>0:
@@ -95,16 +75,20 @@ for index, row in main_df.iterrows():
         main_df.loc[index, 'Awards_Blurb'] = data['Awards']
         main_df.loc[index, 'Languages'] = data['Language']
     except:
-        print(f"Unable to get data from the movie {data['Title']}")
+        print(f"Unable to get data for {row['Title']}")
+    if count % 1000 == 0:
+
+
+
     
 #%%
 #The following functions are to be applied to cells to clean them up
 
 #This cleans up cells starting with a '$' and handles numbers with commas
 def dollarCleaner(x):
-    x = x.replace('$','')
-    x = x.replace(',','')
     try:
+        x = x.replace('$','')
+        x = x.replace(',','')
         x = int(x)
     except:
         x = np.NaN
@@ -112,8 +96,8 @@ def dollarCleaner(x):
 
 #This one is made for Rotten Tomatoes ratings, It removes percent signs from the beginning
 def lessRottenTomato(x):
-    x = x.replace('%','')
     try:
+        x = x.replace('%','')
         x = int(x)
     except:
         x = np.NaN
@@ -121,9 +105,9 @@ def lessRottenTomato(x):
 
 # This one is designed for metacritic and will take the top number from "top/bottom" format
 def megacritic(x):
-    x = x.split('/')
-    x = x[0]
     try:
+        x = x.split('/')
+        x = x[0]
         x = int(x)
     except:
         x = np.NaN
@@ -132,8 +116,11 @@ def megacritic(x):
 #This will extract the numerical month as long as it is the center value in 
 #a string separated by '-'
 def monthGetter(x):
-    x = x.split('-')
-    x = x[1]
+    try:
+        x = x.split('-')
+        x = x[1]
+    except:
+        x = np.NaN
     try:
         x = int(x)
     except:
@@ -151,15 +138,25 @@ def genreSplitter(x):
 #This one is to put the date in 'Home Release' into the same fomat as the other dates
 #(turning 'May' into '5' will be another story)
 def dateFormatter(x):
-    x = x.split(' ')
-    y = f"{x[2]}-{x[1]}-{x[0]}"
-    return y
+    y=0
+    try:
+        x = x.split(' ')
+        y = f"{x[2]}-{x[1]}-{x[0]}"
+        return y
+    except:
+        return y
 main_df['Box_Office'] = main_df['Box_Office'].apply(dollarCleaner)
 main_df['Rotten_Tomatoes_Rating'] = main_df['Rotten_Tomatoes_Rating'].apply(lessRottenTomato)
 main_df['Metacritic_Rating'] = main_df['Metacritic_Rating'].apply(megacritic)
 main_df['Month Released'] = main_df['Release Date'].apply(monthGetter)
 main_df['Genres']= main_df['Genres'].apply(genreSplitter)
 main_df['Home_Release']= main_df['Home_Release'].apply(dateFormatter)
+main_df['Languages']= main_df['Languages'].apply(genreSplitter)
+#%%
+main_df.to_csv('movies.csv')
+main_df['Awards_Blurb'].unique()
+
 # %%
-main_df['Box_Office'].head()
+main_df.head()
+
 # %%
