@@ -97,7 +97,7 @@ for index, row in main_df.iterrows():
 #%%
 #The following functions are to be applied to cells to clean them up
 
-#This cleans up cells tarting with a '$' and handles numbers with commas
+#This cleans up cells starting with a '$' and handles numbers with commas
 def dollarCleaner(x):
     x = x.replace('$','')
     x = x.replace(',','')
@@ -107,8 +107,7 @@ def dollarCleaner(x):
         x = np.NaN
     return x
 
-#This one is made for Rotten Tomatoes ratings, but will remove the percent sign from
-#any number
+#This one is made for Rotten Tomatoes ratings, It removes percent signs from the beginning
 def lessRottenTomato(x):
     x = x.replace('%','')
     try:
@@ -117,7 +116,7 @@ def lessRottenTomato(x):
         x = np.NaN
     return x
 
-# This one is designed for metacritic and will take the top number from top/bottom format
+# This one is designed for metacritic and will take the top number from "top/bottom" format
 def megacritic(x):
     x = x.split('/')
     x = x[0]
@@ -147,6 +146,7 @@ def genreSplitter(x):
         y.append(x)
     return y
 #This one is to put the date in 'Home Release' into the same fomat as the other dates
+#(turning 'May' into '5' will be another story)
 def dateFormatter(x):
     x = x.split(' ')
     y = f"{x[2]}-{x[1]}-{x[0]}"
