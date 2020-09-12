@@ -10,7 +10,7 @@ import json
 from pprint import pprint
 import time
 key = bigKey
-key = OMDBkey
+#key = OMDBkey
 print(bigKey)
 #%%
 #Getting the CSV in,  there was a weird encoding error, the ISO-8859 fixes it.
@@ -76,14 +76,12 @@ for index, row in main_df.iterrows():
         main_df.loc[index, 'Languages'] = data['Language']
     except:
         print(f"Unable to get data for {row['Title']}")
-    if count % 1000 == 0:
 
 
 
     
 #%%
 #The following functions are to be applied to cells to clean them up
-
 #This cleans up cells starting with a '$' and handles numbers with commas
 def dollarCleaner(x):
     try:
