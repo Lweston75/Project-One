@@ -37,8 +37,8 @@ main_df['Total_Nominations'] = ''
 main_df['Home_Release']=''
 main_df['Production']=''
 main_df['Country']=''
-main_df['Awards_Blurb']
-
+main_df['Awards_Blurb']=''
+main_df['Languages']=''
 # vvv Comment out below when the code is all ready to go vvv
 main_df=main_df.head()
 # ^^^                                                        ^^^
@@ -93,6 +93,7 @@ for index, row in main_df.iterrows():
         except:
             main_df.loc[index, 'Home_Release'] = np.NaN
         main_df.loc[index, 'Awards_Blurb'] = data['Awards']
+        main_df.loc[index, 'Languages'] = data['Language']
     except:
         print(f"Unable to get data from the movie {data['Title']}")
     
@@ -160,5 +161,5 @@ main_df['Month Released'] = main_df['Release Date'].apply(monthGetter)
 main_df['Genres']= main_df['Genres'].apply(genreSplitter)
 main_df['Home_Release']= main_df['Home_Release'].apply(dateFormatter)
 # %%
-main_df
+main_df['Box_Office'].head()
 # %%
