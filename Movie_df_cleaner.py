@@ -1,6 +1,6 @@
 #%%
 import pandas as pd
-from matplotlib import pyplot as pyplot
+from matplotlib import pyplot as plt
 from scipy import stats as st
 import numpy as np
 from config import key as OMDBkey
