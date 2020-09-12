@@ -4,9 +4,12 @@ from matplotlib import pyplot as pyplot
 from scipy import stats as st
 import numpy as np
 from config import key as OMDBkey
+from config import bigKey
 import requests as req
 import json
 from pprint import pprint
+#key = bigKey
+key = OMDBkey
 #%%
 #Getting the CSV in,  there was a weird encoding error, the ISO-8859 fixes it.
 #We'll see if we can change it so that this step is unnecessary when processing
@@ -19,10 +22,10 @@ main_df.drop(['Created','Modified','Position','Description','Title Type'],axis=1
 #%%
 
 ID = 'tt1872181'
-call = f"http://www.omdbapi.com/?i={ID}&apikey={OMDBkey}"
+call = f"http://www.omdbapi.com/?i={ID}&apikey={key}"
 data = req.get(call).json()
 pprint(data)
-#%%
+
 #%%
 main_df['Box_Office']=''
 main_df['Rotten_Tomatoes_Rating']=''
@@ -35,7 +38,7 @@ main_df['Home_Release']=''
 main_df['Production']=''
 main_df['Country']=''
 
-# vvv Delete the line below when the code is all ready to go vvv
+# vvv Comment out below when the code is all ready to go vvv
 main_df=main_df.head()
 # ^^^                                                        ^^^
 
