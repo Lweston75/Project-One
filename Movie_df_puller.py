@@ -26,8 +26,6 @@ main_df.drop(['Created','Modified','Position','Description'],axis=1, inplace = T
 ID = 'tt0094291'
 call = f"http://www.omdbapi.com/?i={ID}&apikey={key}"
 data = req.get(call).json()
-pprint(data['Country'])
-
 
 
 #%%
