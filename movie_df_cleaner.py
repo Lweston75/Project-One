@@ -17,25 +17,27 @@ def award_gen(x):
     try:
         x=x.split(" ")
         for i in range(len(x)):
-            try:
-                int(x[i])
-                y[x[i+1]] = x[i]
-            except:
-                pass
+                try:
+                    x[i] = int(x[i])
+                    y[x[i+1]] = x[i]
+                except:
+                    pass
+        if x[0] == 'Nominated':
+            y['nominations.'] += int(x[2])
         return y
     except:
         return "Could not parse awards"
 
+        
 movie_df['Awards'] = movie_df['Awards_Blurb'].apply(award_gen)
 #%%
 # To remove duplicates
 movie_df = movie_df.groupby('Const').first()
-
-# %%
-movie_df.drop('Unnamed: 0', axis = 0, inplace = True)
-movie_df = movie_df[movie_df['Title Type'] == 'movie'
-movie_df = movie_df.dropna()
-movie_df
+movie_df.head(20)
 #%%
-director_dfs = {}
-studio_dfs = {}
+#movie_df.drop('Unnamed:0', axis = 0, inplace = True)
+movie_df = movie_df[movie_df['Title Type'] == 'movie']
+#for index, row in movie_df.iterrows():
+
+
+#%%
