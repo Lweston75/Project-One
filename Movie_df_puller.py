@@ -18,7 +18,7 @@ print(bigKey)
 #subsequently published CSVs
 movie_csv = "ESP-Movie.csv"
 main_df = pd.read_csv(movie_csv, encoding = "ISO-8859-1")
-main_df.drop(['Created','Modified','Position','Description','Title Type'],axis=1, inplace = True)
+main_df.drop(['Created','Modified','Position','Description'],axis=1, inplace = True)
 
 
 #%%
@@ -151,9 +151,9 @@ main_df['Genres']= main_df['Genres'].apply(genreSplitter)
 main_df['Home_Release']= main_df['Home_Release'].apply(dateFormatter)
 main_df['Languages']= main_df['Languages'].apply(genreSplitter)
 #%%
-main_df = main_df.head(1000)
+
 main_df.to_csv('movies.csv')
-main_df['Awards_Blurb'].unique()
+#main_df['Awards_Blurb'].unique()
 
 # %%
 main_df.head()
